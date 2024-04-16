@@ -83,7 +83,6 @@ internal class DeathPatch
                 PlayerManager.HandlePlayerDelete(__instance.Character.Id);
 
                 var success = PlayerManager.ProcessDeletedPlayer(__instance.Character.Id);
-                __instance.SendMessage("You have no tokens to lose!", ChatMessageType.Broadcast);
                 return;
             }
         }
