@@ -53,9 +53,9 @@ internal class DeathPatch
         }
         if (__instance.GetProperty((PropertyBool)31000) != true)
             return;
-        if (__instance.GetProperty((PropertyBool)31000) == true)
+        if (__instance.GetProperty((PropertyBool)31000) == true && Settings.DeleteHcToons)
         {
-            var token = __instance.GetInventoryItemsOfWCID(Settings.TokenWCID).FirstOrDefault();
+            var halfLife = __instance.GetInventoryItemsOfWCID(Settings.HalfLifeWCID).FirstOrDefault();
 
             if (__instance.IsPKDeath(topDamager))
             {
@@ -68,13 +68,13 @@ internal class DeathPatch
                 var success = PlayerManager.ProcessDeletedPlayer(__instance.Character.Id);
             }
 
-            if (token != null)
+            if (halfLife != null)
             {
                 __instance.SendMessage("You have lost 1 token!", ChatMessageType.Broadcast);
-                __instance.TryRemoveFromInventoryWithNetworking(__instance.Guid.Full, out token, Player.RemoveFromInventoryAction.ConsumeItem);
+                __instance.TryRemoveFromInventoryWithNetworking(__instance.Guid.Full, out halfLife, Player.RemoveFromInventoryAction.ConsumeItem);
                 return;
             }
-            else if (token == null)
+            else if (halfLife == null)
             {
                 __instance.Character.DeleteTime = (ulong)Time.GetUnixTime();
                 __instance.Character.IsDeleted = true;

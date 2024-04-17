@@ -29,7 +29,9 @@ internal class DamageMod
                 return;
 
             //player.SendMessage("You are in hardcore mode!", ACE.Entity.Enum.ChatMessageType.Broadcast);
-            __result += 1 * Settings.HardcoreDamageBonus;
+            var moddedDamage = __result + (__result * Settings.HardcoreDamageBonus); 
+
+            __result += 1 * moddedDamage;
             return;
         }
         if (attacker is Creature creature1 && defender is Player player1)
@@ -43,7 +45,9 @@ internal class DamageMod
                 return;
 
             //player1.SendMessage("You are in hardcore mode!", ACE.Entity.Enum.ChatMessageType.Broadcast);
-            __result -= 1 * Settings.HcMobDamagePenalty;
+            var moddedDamage = __result + (__result * Settings.HcMobDamageBoost);
+
+            __result += 1 * moddedDamage;
             return;
         }
     }
