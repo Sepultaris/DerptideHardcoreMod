@@ -100,10 +100,12 @@ namespace DerptideHardcore
         //  ...
         //}
 
+        // New Properties
         PropertyBool DerpHcEnabled = (PropertyBool)31000;
 
         PropertyInt64 DerpHcPoints = (PropertyInt64)31001;
 
+        // New Commands
         [CommandHandler("hc", AccessLevel.Player, CommandHandlerFlag.RequiresWorld)]
 
         public static void HandleHcCommand(Session session, params string[] parameters)

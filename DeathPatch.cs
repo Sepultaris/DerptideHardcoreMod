@@ -24,6 +24,7 @@ internal class DeathPatch
     #endregion
 
     #region Patch
+    // Patch for Player.OnDeath. Checks if the player has the property 31000 and if they do, sends a message when they die.
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), nameof(Player.OnDeath), new Type[] { typeof(DamageHistoryInfo), typeof(DamageType), typeof(bool) })]
     public static void PostOnDeath(DamageHistoryInfo lastDamager, DamageType damageType, bool criticalHit, ref Player __instance, ref DeathMessage __result)
@@ -42,6 +43,8 @@ internal class DeathPatch
         }
     }
 
+    // Patch for Player.Die. Checks if the player has the property 31000 and if they do, deletes the player if they die to a player killer or if they do not posses a halflife token.
+    // If they do have a halflife token, it removes one from their inventory and the character is not deleted.
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), "Die", new Type[] { typeof(DamageHistoryInfo), typeof(DamageHistoryInfo) })]
     public static void PostDie(DamageHistoryInfo lastDamager, DamageHistoryInfo topDamager, ref Player __instance)
@@ -70,7 +73,7 @@ internal class DeathPatch
 
             if (halfLife != null)
             {
-                __instance.SendMessage("You have lost 1 token!", ChatMessageType.Broadcast);
+                __instance.SendMessage("You have lost 1 halflife token!", ChatMessageType.Broadcast);
                 __instance.TryRemoveFromInventoryWithNetworking(__instance.Guid.Full, out halfLife, Player.RemoveFromInventoryAction.ConsumeItem);
                 return;
             }

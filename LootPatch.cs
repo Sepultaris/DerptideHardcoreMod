@@ -16,6 +16,8 @@ public class LootPatch
     #endregion
 
     #region Patch
+    // Patch for Creature.GenerateTreasure. Checks if the killer is a player and if the player has the property 31000.
+    // And rolls to drop a token if they do.
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Creature), "GenerateTreasure", new Type[] { typeof(DamageHistoryInfo), typeof(Corpse) })]
     public static void PostGenerateTreasure(DamageHistoryInfo killer, Corpse corpse, Creature __instance, List<WorldObject> __result)
