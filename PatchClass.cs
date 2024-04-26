@@ -106,7 +106,7 @@ namespace DerptideHardcore
         PropertyInt64 DerpHcPoints = (PropertyInt64)31001;
 
         // New Commands
-        [CommandHandler("hc", AccessLevel.Player, CommandHandlerFlag.RequiresWorld)]
+        [CommandHandler("hc", AccessLevel.Admin, CommandHandlerFlag.RequiresWorld)]
 
         public static void HandleHcCommand(Session session, params string[] parameters)
         {
