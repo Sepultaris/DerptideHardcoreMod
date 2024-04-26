@@ -111,6 +111,8 @@
                 Harmony.PatchCategory(nameof(LootPatch));
                 Harmony.PatchCategory(nameof(DamageMod));
                 Harmony.PatchCategory(nameof(DeathPatch));
+                Harmony.PatchCategory(nameof(PlayerXpPatch));
+                Harmony.PatchCategory(nameof(PlayerLuminancePatch));
 
                 patch.Start();
             }

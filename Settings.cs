@@ -17,6 +17,10 @@
         public float HardcoreDamageBonus { get; set; } = 0.15f;
 
         public float HcMobDamageBoost { get; set; } = 0.3f;
+
+        public float HcXpMultiplier { get; set; } = 2.0f;
+
+        public float HcLumXpMulitplier { get; set; } = 2.0f;
     }
 }
 
