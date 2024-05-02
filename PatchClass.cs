@@ -105,6 +105,8 @@ namespace DerptideHardcore
 
         PropertyInt64 DerpHcPoints = (PropertyInt64)31001;
 
+        PropertyBool DerpHcDeath = (PropertyBool)31002;
+
         // New Commands
         [CommandHandler("hc", AccessLevel.Admin, CommandHandlerFlag.RequiresWorld)]
 

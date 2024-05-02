@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.WebSockets;
 using System.Text;
 using System.Threading.Tasks;
 using ACE.Common;
@@ -24,72 +25,86 @@ internal class DeathPatch
     #endregion
 
     #region Patch
-    // Patch for Player.OnDeath. Checks if the player has the property 31000 and if they do, sends a message when they die.
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(Player), nameof(Player.OnDeath), new Type[] { typeof(DamageHistoryInfo), typeof(DamageType), typeof(bool) })]
-    public static void PostOnDeath(DamageHistoryInfo lastDamager, DamageType damageType, bool criticalHit, ref Player __instance, ref DeathMessage __result)
-    {
-        if (__instance.GetProperty((PropertyBool)31000) == null)
-        {
-            __instance.SetProperty((PropertyBool)31000, false);
-            return;
-        }
-        if (__instance.GetProperty((PropertyBool)31000) != true)
-            return;
-        if (__instance.GetProperty((PropertyBool)31000) == true)
-        {
-            __instance.SendMessage("You have died in hardcore mode!", ChatMessageType.Broadcast);
-            
-        }
-    }
 
-    // Patch for Player.Die. Checks if the player has the property 31000 and if they do, deletes the player if they die to a player killer or if they do not posses a halflife token.
-    // If they do have a halflife token, it removes one from their inventory and the character is not deleted.
     [HarmonyPostfix]
     [HarmonyPatch(typeof(Player), "Die", new Type[] { typeof(DamageHistoryInfo), typeof(DamageHistoryInfo) })]
     public static void PostDie(DamageHistoryInfo lastDamager, DamageHistoryInfo topDamager, ref Player __instance)
     {
-        if (__instance.GetProperty((PropertyBool)31000) == null)
+        
+    }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Player), nameof(Player.OnDeath), new Type[] { typeof(DamageHistoryInfo), typeof(DamageType), typeof(bool) })]
+    public static void PostOnDeath(DamageHistoryInfo lastDamager, DamageType damageType, bool criticalHit, ref Player __instance, ref DeathMessage __result)
+    {
+        if (__instance.GetProperty((PropertyBool)31002) == null)
         {
-            __instance.SetProperty((PropertyBool)31000, false);
-            return;
+            __instance.SetProperty((PropertyBool)31002, false);
         }
-        if (__instance.GetProperty((PropertyBool)31000) != true)
-            return;
-        if (__instance.GetProperty((PropertyBool)31000) == true && Settings.DeleteHcToons)
+
+        if (__instance.GetProperty((PropertyBool)31000) == true && __instance.GetProperty((PropertyBool)31002) == false)
         {
-            var halfLife = __instance.GetInventoryItemsOfWCID(Settings.HalfLifeWCID).FirstOrDefault();
+            __instance.SendMessage("You have died in hardcore mode!", ChatMessageType.Broadcast);
 
-            if (__instance.IsPKDeath(topDamager))
+            if (__instance.GetProperty((PropertyBool)31000) == true && Settings.DeleteHcToons && __instance.GetProperty((PropertyBool)31002) == false)
             {
-                __instance.Character.DeleteTime = (ulong)Time.GetUnixTime();
-                __instance.Character.IsDeleted = true;
-                __instance.CharacterChangesDetected = true;
-                __instance.Session.LogOffPlayer(true);
-                PlayerManager.HandlePlayerDelete(__instance.Character.Id);
+                var halfLife = __instance.GetInventoryItemsOfWCID(Settings.HalfLifeWCID).FirstOrDefault();
+                var killerName = lastDamager.TryGetPetOwnerOrAttacker()?.Name ?? "Unknown";
+                var onlinePlayers = PlayerManager.GetAllOnline();
 
-                var success = PlayerManager.ProcessDeletedPlayer(__instance.Character.Id);
-            }
+                if (__instance.IsPKDeath(lastDamager))
+                {
+                    __instance.Character.DeleteTime = (ulong)Time.GetUnixTime();
+                    __instance.Character.IsDeleted = true;
+                    __instance.CharacterChangesDetected = true;
+                    __instance.Session.LogOffPlayer(true);
+                    PlayerManager.HandlePlayerDelete(__instance.Character.Id);
+                    foreach (var player in onlinePlayers)
+                    {
+                        if (player.Name != __instance.Name)
+                            player.SendMessage($"{__instance.Name} has been killed by {killerName}. Thier light fades forever from this world.", ChatMessageType.WorldBroadcast);
+                    }
+                }
+                else if (halfLife != null)
+                {
+                    __instance.SendMessage("You have lost 1 halflife token!", ChatMessageType.Broadcast);
+                    __instance.TryConsumeFromInventoryWithNetworking(halfLife, 1);
+                    foreach (var player in onlinePlayers)
+                    {
+                        var halfLifeCount = __instance.GetInventoryItemsOfWCID(Settings.HalfLifeWCID).Count;
+                        if (player.Name != __instance.Name)
+                            player.SendMessage($"{__instance.Name} has been killed by {killerName}. They have {halfLifeCount} Half Live(s) left.", ChatMessageType.WorldBroadcast);
+                    }
+                }
+                else if (halfLife == null)
+                {
+                    __instance.Character.DeleteTime = (ulong)Time.GetUnixTime();
+                    __instance.Character.IsDeleted = true;
+                    __instance.CharacterChangesDetected = true;
+                    __instance.Session.LogOffPlayer(true);
+                    PlayerManager.HandlePlayerDelete(__instance.Character.Id);
+                    foreach (var player in onlinePlayers)
+                    {
+                        if (player.Name != __instance.Name)
+                            player.SendMessage($"{__instance.Name} has been killed by {killerName}. Thier light fades forever from this world.", ChatMessageType.WorldBroadcast);
+                    }
+                }
 
-            if (halfLife != null)
-            {
-                __instance.SendMessage("You have lost 1 halflife token!", ChatMessageType.Broadcast);
-                __instance.TryRemoveFromInventoryWithNetworking(__instance.Guid.Full, out halfLife, Player.RemoveFromInventoryAction.ConsumeItem);
-                return;
-            }
-            else if (halfLife == null)
-            {
-                __instance.Character.DeleteTime = (ulong)Time.GetUnixTime();
-                __instance.Character.IsDeleted = true;
-                __instance.CharacterChangesDetected = true;
-                __instance.Session.LogOffPlayer(true);
-                PlayerManager.HandlePlayerDelete(__instance.Character.Id);
-
-                var success = PlayerManager.ProcessDeletedPlayer(__instance.Character.Id);
-                return;
+                __instance.SetProperty((PropertyBool)31002, true);
             }
         }
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(typeof(Player), nameof(Player.ThreadSafeTeleportOnDeath))]
+    public static void PostThreadSafeTeleportOnDeath(ref Player __instance)
+    {
+        if (__instance.GetProperty((PropertyBool)31002) == true)
+        {
+            __instance.SetProperty((PropertyBool)31002, false);
+        }
+    }
+
 
     #endregion
 }
