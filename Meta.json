@@ -2,7 +2,7 @@
     "Name": "DerptideHardcore",
     "Author": "Sepultaris",
     "Description": "This mod is a port of the hardcore mechanics from ValHeel.",
-    "Version": "0.02",
+    "Version": "0.05",
     "Enabled": true,
     "HotReload": true,
     "RegisterCommands": true,

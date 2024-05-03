@@ -62,7 +62,7 @@ internal class DeathPatch
                     foreach (var player in onlinePlayers)
                     {
                         if (player.Name != __instance.Name)
-                            player.SendMessage($"{__instance.Name} has been killed by {killerName}. Thier light fades forever from this world.", ChatMessageType.WorldBroadcast);
+                            player.SendMessage($"{__instance.Name} has been killed by {killerName}. Their light fades forever from this world.", ChatMessageType.WorldBroadcast);
                     }
                 }
                 else if (halfLife != null)
@@ -86,7 +86,7 @@ internal class DeathPatch
                     foreach (var player in onlinePlayers)
                     {
                         if (player.Name != __instance.Name)
-                            player.SendMessage($"{__instance.Name} has been killed by {killerName}. Thier light fades forever from this world.", ChatMessageType.WorldBroadcast);
+                            player.SendMessage($"{__instance.Name} has been killed by {killerName}. Their light fades forever from this world.", ChatMessageType.WorldBroadcast);
                     }
                 }
 
