@@ -1,4 +1,5 @@
-﻿using ACE.Common;
+﻿using System.Diagnostics;
+using ACE.Common;
 using ACE.Entity.Enum.Properties;
 using ACE.Server.Entity;
 using ACE.Server.Factories;
@@ -22,6 +23,7 @@ public class LootPatch
     [HarmonyPatch(typeof(Creature), "GenerateTreasure", new Type[] { typeof(DamageHistoryInfo), typeof(Corpse) })]
     public static void PostGenerateTreasure(DamageHistoryInfo killer, Corpse corpse, Creature __instance, List<WorldObject> __result)
     {
+        Debugger.Break();
         if (killer is null || killer.TryGetPetOwnerOrAttacker() is not Player player)
             return;
         if (player.GetProperty((PropertyBool)31000) == null)
@@ -31,19 +33,17 @@ public class LootPatch
         }
         if (player.GetProperty((PropertyBool)31000) != true)
             return;
-        
+
         var roll = ThreadSafeRandom.Next(0.0f, 1.0f);
 
-        var tokenCount = corpse.GetInventoryItemsOfWCID(Settings.TokenWCID);
-        var token = WorldObjectFactory.CreateNewWorldObject(Settings.TokenWCID);
-
-        if (tokenCount.Count >= 1)
-            return;
-        if (roll > Settings.TokenDropChance)
-            return;
-
-        if (Settings.TokenDrop)
+        if (Settings.TokenDrop && player.GetProperty((PropertyBool)31000) == true && roll < Settings.TokenDropChance)
         {
+            var tokenCount = corpse.GetInventoryItemsOfWCID(Settings.TokenWCID);
+            var token = WorldObjectFactory.CreateNewWorldObject(Settings.TokenWCID);
+
+            if (tokenCount.Count >= 1)
+                return;
+        
             corpse.TryAddToInventory(token);
             player.SendMessage($"{corpse.Name} Dropped a token.", ACE.Entity.Enum.ChatMessageType.Broadcast);
         }

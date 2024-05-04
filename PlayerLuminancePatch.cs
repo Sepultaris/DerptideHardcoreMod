@@ -45,7 +45,9 @@ internal class PlayerLuminancePatch
             // should this be passed upstream to fellowship?
             var enchantment = __instance.GetXPAndLuminanceModifier(xpType);
 
-            var m_amount = (long)Math.Round(amount * enchantment * modifier * Settings.HcLumXpMulitplier);
+            amount = (long)(amount + (amount * Settings.HcLumXpMultiplier));
+
+            var m_amount = (long)Math.Round(amount * enchantment * modifier);
 
             __instance.GrantLuminance(m_amount, xpType, shareType);
         }

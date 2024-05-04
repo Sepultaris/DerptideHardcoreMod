@@ -46,7 +46,9 @@ internal class PlayerXpPatch
             // should this be passed upstream to fellowship / allegiance?
             var enchantment = __instance.GetXPAndLuminanceModifier(xpType);
 
-            var m_amount = (long)Math.Round(amount * enchantment * modifier * Settings.HcXpMultiplier);
+            amount = (long)(amount + (amount * Settings.HcXpMultiplier));
+
+            var m_amount = (long)Math.Round(amount * enchantment * modifier);
 
             if (m_amount < 0)
             {

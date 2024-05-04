@@ -20,7 +20,7 @@
 
         public float HcXpMultiplier { get; set; } = 2.0f;
 
-        public float HcLumXpMulitplier { get; set; } = 2.0f;
+        public float HcLumXpMultiplier { get; set; } = 2.0f;
     }
 }
 
