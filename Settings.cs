@@ -8,7 +8,7 @@
 
         public bool DeleteHcToons { get; set; } = true;
 
-        public float TokenDropChance { get; set; } = 0.3f;
+        public float TokenDropChance { get; set; } = 0.01f;
 
         public uint TokenWCID { get; set; } = 420711;
 
@@ -23,5 +23,8 @@
         public float HcLumXpMultiplier { get; set; } = 2.0f;
     }
 }
+
+
+
 
 
